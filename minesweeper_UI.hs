@@ -121,23 +121,37 @@ main = do
     putStrLn "The data you entered was invalid, please try again\n" >> main
   else do
     gs <- (generateBoard (w,h) n)
-    start (initializeGUI (w,h) n)
-    showBoard gs
-    showInternal gs
-    prompt gs
+    start (createGUI  (w,h) n)
+    --showBoard gs
+    --showInternal gs
+    --prompt gs
     return ()
 
 
-initializeGUI :: (Int, Int) -> Int -> IO ()
-initializeGUI (_,_) _ = do -- the application frame
+printRow n t p =
+      if (n > t) then do
+        return ()
+      else do
+	ok   <- button p [ position := pt (n*21) (t), size := Size 20 20]
+ 	return ()
+        --putStr ((show n) ++ " :")
+        --putStrLn . unwords $ rowHelper (rowSquares n gs)
+        printRow (n+1) t p
+
+
+
+
+createGUI :: (Int, Int) -> Int -> IO ()
+createGUI  (w,h) n = do -- the application frame
        f      <- frame         [text := "Hello world!", clientSize := sz 300 200]                               
        --nb      <- notebook p []
        --radio button panel
        p   <- panel f []
        let rlabels = ["click mode", "flag mode"]
        r1   <- radioBox p Vertical rlabels   [text := "Select mode:"]
-       ok   <- button p [text := "Ok" ] 
-
+       --map ( button p [text := "Ok" ])  [1..w]
+       --ok   <- button p [text := "Ok" ] 
+       printRow 1 h p
        -- create file menu  
        file   <- menuPane      [text := "&File"]
        quit   <- menuQuit file [help := "Quit the demo", on command :=  close f]
