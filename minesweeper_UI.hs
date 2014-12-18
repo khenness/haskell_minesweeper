@@ -36,6 +36,11 @@ showBoard gs = do  -- Print col names
         cellHelper (Adjacent n) = show n
         cellHelper _            = " "
         rowHelper squares = [cellHelper s|(_,s) <- (M.toList squares)]
+
+
+
+
+
  
 showInternal :: GameState -> IO ()
 showInternal gs = do  -- Print col names
@@ -121,6 +126,7 @@ main = do
     putStrLn "The data you entered was invalid, please try again\n" >> main
   else do
     gs <- (generateBoard (w,h) n)
+    showInternal gs
     start (createGUI  (w,h) n)
     --showBoard gs
     --showInternal gs
@@ -132,8 +138,11 @@ printRow n t p =
       if (n > t) then do
         return ()
       else do
-	ok   <- button p [ position := pt (n*21) (t), size := Size 20 20]
- 	return ()
+	ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
+        staticText p [ text := "X", position := pt ((n*21)+5) (t)]
+        --set ok [text := "K"]
+        --drawText p "F" (pt  (n*21) (t)) []
+        --ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
         --putStr ((show n) ++ " :")
         --putStrLn . unwords $ rowHelper (rowSquares n gs)
         printRow (n+1) t p
@@ -147,10 +156,13 @@ createGUI  (w,h) n = do -- the application frame
        --nb      <- notebook p []
        --radio button panel
        p   <- panel f []
+      {- p <- scrolledWindow f [virtualSize := sz 500 500, scrollRate := sz 10 10
+		                      , fullRepaintOnResize := False]
+	       --p2   <- panel f []-}
        let rlabels = ["click mode", "flag mode"]
        r1   <- radioBox p Vertical rlabels   [text := "Select mode:"]
        --map ( button p [text := "Ok" ])  [1..w]
-       --ok   <- button p [text := "Ok" ] 
+       reset   <- button p [text := "reset" ] 
        printRow 1 h p
        -- create file menu  
        file   <- menuPane      [text := "&File"]
