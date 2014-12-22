@@ -138,8 +138,9 @@ printRow n t p =
       if (n > t) then do
         return ()
       else do
-	ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
-        staticText p [ text := "X", position := pt ((n*21)+5) (t)]
+	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
+	ok <- bitmapButton p [ position := pt (n*21+5) (t), picture := "flag.png",  size := Size 20 25 ]
+        --staticText p [ text := "X", position := pt ((n*21)+5) (t)]
         --set ok [text := "K"]
         --drawText p "F" (pt  (n*21) (t)) []
         --ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
