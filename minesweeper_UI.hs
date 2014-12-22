@@ -11,6 +11,14 @@ import qualified Data.Set as S
 import Data.Map(Map)
 import Data.Char
  
+
+
+
+
+
+
+
+
 showBoard :: GameState -> IO ()
 showBoard gs = do  -- Print col names
   putStr "   "
@@ -127,32 +135,58 @@ main = do
   else do
     gs <- (generateBoard (w,h) n)
     showInternal gs
-    start (createGUI  (w,h) n)
+    start (createGUI  (w,h) n gs)
     --showBoard gs
     --showInternal gs
     --prompt gs
     return ()
 
 
-printRow n t p =
-      if (n > t) then do
+printBoard n w h p gs = 
+	 if (n > h) then do
+		return ()
+	 else do
+	     printRow 1 w n p gs
+             printBoard (n+1) w h p gs
+
+
+printRow n w h p gs =
+      if (n > w) then do
         return ()
       else do
 	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
-	ok <- bitmapButton p [ position := pt (n*21+5) (t), picture := "flag.png",  size := Size 20 25 ]
+	ok <- bitmapButton p [ position := pt (n*24+20) (h*24+20) ,size := Size 24 24 ] --size := Size 20 25
+        if ((getInternal gs) M.! (n,h)) == Mine then set ok [ picture := "mine.png"]  else return ()
+        if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set ok [ picture := "1.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set ok [ picture := "2.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set ok [ picture := "3.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set ok [ picture := "4.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 5 then set ok [ picture := "5.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set ok [ picture := "6.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set ok [ picture := "7.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set ok [ picture := "8.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] else return ()
+	
+
+
+        -- NOTE: (M.!) is the same as data.Map's lookup function but you know its not a "Maybe X", its definitely an X
+                
+        -- == Mine 
+		--then set ok [ picture := "mine.png"] 
+		--else set ok [ picture := "flag.png"]
         --staticText p [ text := "X", position := pt ((n*21)+5) (t)]
         --set ok [text := "K"]
         --drawText p "F" (pt  (n*21) (t)) []
         --ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
         --putStr ((show n) ++ " :")
         --putStrLn . unwords $ rowHelper (rowSquares n gs)
-        printRow (n+1) t p
+        printRow (n+1) w h p gs
 
 
 
 
-createGUI :: (Int, Int) -> Int -> IO ()
-createGUI  (w,h) n = do -- the application frame
+--createGUI :: (Int, Int) -> Int -> IO ()
+createGUI  (w,h) n gs = do -- the application frame
        f      <- frame         [text := "Hello world!", clientSize := sz 300 200]                               
        --nb      <- notebook p []
        --radio button panel
@@ -164,7 +198,8 @@ createGUI  (w,h) n = do -- the application frame
        r1   <- radioBox p Vertical rlabels   [text := "Select mode:"]
        --map ( button p [text := "Ok" ])  [1..w]
        reset   <- button p [text := "reset" ] 
-       printRow 1 h p
+       --printRow 1 w p
+       printBoard 1 w h p gs
        -- create file menu  
        file   <- menuPane      [text := "&File"]
        quit   <- menuQuit file [help := "Quit the demo", on command :=  close f]
@@ -180,6 +215,8 @@ createGUI  (w,h) n = do -- the application frame
        set f [ statusBar := [status]
              
              ]
+ 
+  
 
 
 
