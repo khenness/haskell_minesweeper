@@ -11,6 +11,14 @@ import qualified Data.Set as S
 import Data.Map(Map)
 import Data.Char
  
+
+
+
+
+
+
+
+
 showBoard :: GameState -> IO ()
 showBoard gs = do  -- Print col names
   putStr "   "
@@ -134,19 +142,27 @@ main = do
     return ()
 
 
-printRow n t p =
-      if (n > t) then do
+printBoard n w h p = 
+	 if (n > h) then do
+		return ()
+	 else do
+	     printRow 1 w n p
+             printBoard (n+1) w h p
+
+
+printRow n w h p =
+      if (n > w) then do
         return ()
       else do
 	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
-	ok <- bitmapButton p [ position := pt (n*21+5) (t), picture := "flag.png",  size := Size 20 25 ]
+	ok <- bitmapButton p [ position := pt (n*21+5) (h*21+5), picture := "flag.png",  size := Size 20 25 ]
         --staticText p [ text := "X", position := pt ((n*21)+5) (t)]
         --set ok [text := "K"]
         --drawText p "F" (pt  (n*21) (t)) []
         --ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
         --putStr ((show n) ++ " :")
         --putStrLn . unwords $ rowHelper (rowSquares n gs)
-        printRow (n+1) t p
+        printRow (n+1) w h p
 
 
 
@@ -164,7 +180,8 @@ createGUI  (w,h) n = do -- the application frame
        r1   <- radioBox p Vertical rlabels   [text := "Select mode:"]
        --map ( button p [text := "Ok" ])  [1..w]
        reset   <- button p [text := "reset" ] 
-       printRow 1 h p
+       --printRow 1 w p
+       printBoard 1 w h p
        -- create file menu  
        file   <- menuPane      [text := "&File"]
        quit   <- menuQuit file [help := "Quit the demo", on command :=  close f]
@@ -180,6 +197,8 @@ createGUI  (w,h) n = do -- the application frame
        set f [ statusBar := [status]
              
              ]
+ 
+  
 
 
 
