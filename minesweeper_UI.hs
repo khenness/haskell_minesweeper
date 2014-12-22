@@ -135,40 +135,44 @@ main = do
   else do
     gs <- (generateBoard (w,h) n)
     showInternal gs
-    start (createGUI  (w,h) n)
+    start (createGUI  (w,h) n gs)
     --showBoard gs
     --showInternal gs
     --prompt gs
     return ()
 
 
-printBoard n w h p = 
+printBoard n w h p gs = 
 	 if (n > h) then do
 		return ()
 	 else do
-	     printRow 1 w n p
-             printBoard (n+1) w h p
+	     printRow 1 w n p gs
+             printBoard (n+1) w h p gs
 
 
-printRow n w h p =
+printRow n w h p gs =
       if (n > w) then do
         return ()
       else do
 	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
-	ok <- bitmapButton p [ position := pt (n*21+5) (h*21+5), picture := "flag.png",  size := Size 20 25 ]
+	ok <- bitmapButton p [ position := pt (n*24+20) (h*24+20), picture := "flag.png",size := Size 24 24 ] --size := Size 20 25
+        if ((getInternal gs) M.! (n,h)) == Mine then set ok [ picture := "mine.png"]  else set ok [ picture := "flag.png"] 
+                -- == Mine 
+		--then set ok [ picture := "mine.png"] 
+		--else set ok [ picture := "flag.png"]
         --staticText p [ text := "X", position := pt ((n*21)+5) (t)]
         --set ok [text := "K"]
         --drawText p "F" (pt  (n*21) (t)) []
         --ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
         --putStr ((show n) ++ " :")
         --putStrLn . unwords $ rowHelper (rowSquares n gs)
-        printRow (n+1) w h p
+        printRow (n+1) w h p gs
 
 
 
 
-createGUI :: (Int, Int) -> Int -> IO ()
-createGUI  (w,h) n = do -- the application frame
+--createGUI :: (Int, Int) -> Int -> IO ()
+createGUI  (w,h) n gs = do -- the application frame
        f      <- frame         [text := "Hello world!", clientSize := sz 300 200]                               
        --nb      <- notebook p []
        --radio button panel
@@ -181,7 +185,7 @@ createGUI  (w,h) n = do -- the application frame
        --map ( button p [text := "Ok" ])  [1..w]
        reset   <- button p [text := "reset" ] 
        --printRow 1 w p
-       printBoard 1 w h p
+       printBoard 1 w h p gs
        -- create file menu  
        file   <- menuPane      [text := "&File"]
        quit   <- menuQuit file [help := "Quit the demo", on command :=  close f]
