@@ -158,14 +158,14 @@ printRow n w h p gs =
 	ok <- bitmapButton p [ position := pt (n*24+20) (h*24+20) ,size := Size 24 24 ] --size := Size 20 25
         if ((getInternal gs) M.! (n,h)) == Mine then set ok [ picture := "mine.png"]  else return ()
         if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set ok [ picture := "1.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set ok [ picture := "2.png"] else set ok []
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set ok [ picture := "3.png"] else set ok []
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set ok [ picture := "4.png"] else set ok []
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 5 then set ok [ picture := "5.png"] else set ok []
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set ok [ picture := "6.png"] else set ok []
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set ok [ picture := "7.png"] else set ok []
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set ok [ picture := "8.png"] else set ok []
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] else set ok []
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set ok [ picture := "2.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set ok [ picture := "3.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set ok [ picture := "4.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 5 then set ok [ picture := "5.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set ok [ picture := "6.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set ok [ picture := "7.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set ok [ picture := "8.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] else return ()
 	
 
 
