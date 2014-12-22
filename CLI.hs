@@ -4,6 +4,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import Data.Map(Map)
 import Data.Char
+import System.Random
  
 showBoard :: GameState -> IO ()
 showBoard gs = do  -- Print col names
@@ -56,9 +57,9 @@ showInternal gs = do  -- Print col names
         cellHelper (IAdjacent n) = show n
         rowHelper squares = [cellHelper s|(_,s) <- (M.toList squares)]
  
-prompt :: GameState -> IO ()
-prompt gs = do
-  putStrLn "Enter your move (f = flag, c = click, q = quit)"
+prompt :: GameState -> (Int, Int) -> IO ()
+prompt gs (w, h)= do
+  putStrLn "Enter your move (f = flag, c = click, rm = random move, sm = smart move,   q = quit)"
   line <- getLine
   case (dropWhile isSpace $ takeWhile (not . isSpace) line) of -- checks for space and retu
     "f" -> do
@@ -74,7 +75,7 @@ prompt gs = do
         (Right gs')  -> do
           showBoard gs'
           showInternal gs'
-          prompt gs'
+          prompt gs' (w, h)
     "c" -> do
       putStrLn "Enter the coordinate of the square you wish to click"
       line <- getLine
@@ -82,18 +83,44 @@ prompt gs = do
  
       case (makeMove (Move Click pos) gs) of
         (Left Win) -> do
+          showBoard gs
           putStrLn "You won!"
         (Left Lose) -> do
+          showBoard gs
           putStrLn "You lost!"
         (Right gs')  -> do
           showBoard gs'
-          prompt gs'
+          prompt gs' (w, h)
+    "rm" -> do
+      promptRandom (w,h) gs
+      --return ()
     "q" -> do
       return ()
     _ -> do
-      prompt gs
+      prompt gs (w, h)
  
- 
+
+promptRandom   (w,h)  gs = do
+      x     <- getStdRandom(randomR (1, w))
+      y     <- getStdRandom(randomR (1, h))
+      let position   = (x, y)
+      let z = 1
+      let squares = getBoard gs
+      let squares_int = getInternal gs
+      print position
+      if ( validMove (Move Click position) (gs)  == True) then
+
+        case (makeMove (Move Click position) gs) of
+          (Left Win) -> do
+            putStrLn "You won!"
+          (Left Lose) -> do
+            putStrLn "You lost!"
+          (Right gs')  -> do
+            showBoard gs'
+            prompt gs' (w, h)
+      else do
+        print "Retrying..."
+        promptRandom (w,h) gs
  
 main :: IO ()
 main = do
@@ -117,5 +144,5 @@ main = do
     gs <- (generateBoard (w,h) n)
     showBoard gs
     showInternal gs
-    prompt gs
+    prompt gs (w,h)
     return ()
