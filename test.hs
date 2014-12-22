@@ -12,9 +12,8 @@ buildGUI = do
   set f [ layout := widget controls ]
 
   set butn [on command := do
-      set ctext [visible := False]                          -- so ctext doesn't show
-      --set controls [layout := margin 5 (widget butn) ]
-            ]     -- so ctext doesn't take up space
+      set butn [visible := False]                          -- so ctext doesn't show
+      set controls [layout := margin 5 (widget butn) ]]     -- so ctext doesn't take up space
   return ()
 
 main = start buildGUI

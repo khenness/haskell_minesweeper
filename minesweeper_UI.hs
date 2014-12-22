@@ -142,22 +142,73 @@ main = do
     return ()
 
 
-printBoard n w h p gs = 
-	 if (n > h) then do
+--used in GUI
+--waitForInput p gs = 
+
+--used in GUI
+printBoard x y w h p gs = 
+	 if (y > h) then do
 		return ()
 	 else do
-	     printRow 1 w n p gs
-             printBoard (n+1) w h p gs
+	     printRow 1 y w h p gs
+             printBoard x (y+1) w h p gs
 
-
-printRow n w h p gs =
-      if (n > w) then do
+--used in GUI
+printRow x y w h p gs =
+      if (x > w) then do
         return ()
       else do
 	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
-	ok <- bitmapButton p [ position := pt (n*24+20) (h*24+20) ,size := Size 24 24 ] --size := Size 20 25
-        if ((getInternal gs) M.! (n,h)) == Mine then set ok [ picture := "mine.png"]  else return ()
-        if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set ok [ picture := "1.png"] else return ()
+	
+	ok <- bitmapButton p [ position := pt (x*24+20) (y*24+20) ,size := Size 24 24, on click := (\pt ->  
+		case (makeMove (Move Click (x,y)) gs) of
+		(Left Win) -> do
+		  putStrLn "You won!"
+		(Left Lose) -> do
+		  putStrLn "You lost!"
+		(Right gs')  -> do
+		 start (createGUI  (w,h) 1 gs')),  on clickRight :=(\pt ->  
+		case (makeMove (Move Flag (x,y)) gs) of
+		(Left Win) -> do
+		  putStrLn "You won!"
+		(Left Lose) -> do
+		  putStrLn "You lost!"
+		(Right gs')  -> do
+		  start (createGUI  (w,h) 1 gs'))
+		]
+        -- NOTE: (M.!) is the same as data.Map's lookup function but you know its not a "Maybe X", its definitely an X
+	
+	if ((getBoard gs) M.! (x,y)) == Undiscovered then do set ok []
+	{-then 
+	        if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set ok [ picture := "1.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set ok [ picture := "2.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set ok [ picture := "3.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set ok [ picture := "4.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 5 then set ok [ picture := "5.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set ok [ picture := "6.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set ok [ picture := "7.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set ok [ picture := "8.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] 
+		else if ((getInternal gs) M.! (n,h)) == Mine then set ok [ picture := "mine.png"]   
+	        else return ()
+	else return ()-}
+	else if ((getBoard gs) M.! (x,y)) == Flagged then set ok [ picture := "flag.png" ]
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 0 then set ok [ picture := "0.png", enabled := False]  
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 1 then set ok [ picture := "1.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 2 then set ok [ picture := "2.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 3 then set ok [ picture := "3.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 4 then set ok [ picture := "4.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 5 then set ok [ picture := "5.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 6 then set ok [ picture := "6.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 7 then set ok [ picture := "7.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 8 then set ok [ picture := "8.png", enabled := False]
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 9 then set ok [ picture := "9.png", enabled := False]
+	else if ((getBoard gs) M.! (x,y)) == Clicked then set ok [ picture := "0.png" , enabled := False]
+	else return () 
+
+{-
+	if ((getInternal gs) M.! (n,h)) == Mine then set ok [ picture := "mine.png"]  else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set ok [ picture := "1.png"] else return ()
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set ok [ picture := "2.png"] else return ()
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set ok [ picture := "3.png"] else return ()
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set ok [ picture := "4.png"] else return ()
@@ -165,22 +216,21 @@ printRow n w h p gs =
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set ok [ picture := "6.png"] else return ()
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set ok [ picture := "7.png"] else return ()
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set ok [ picture := "8.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] else return ()
-	
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] else return () 
+  -}     
+	        
 
 
-        -- NOTE: (M.!) is the same as data.Map's lookup function but you know its not a "Maybe X", its definitely an X
-                
-        -- == Mine 
+	-- == Mine 
 		--then set ok [ picture := "mine.png"] 
 		--else set ok [ picture := "flag.png"]
-        --staticText p [ text := "X", position := pt ((n*21)+5) (t)]
-        --set ok [text := "K"]
-        --drawText p "F" (pt  (n*21) (t)) []
-        --ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
-        --putStr ((show n) ++ " :")
-        --putStrLn . unwords $ rowHelper (rowSquares n gs)
-        printRow (n+1) w h p gs
+	--staticText p [ text := "X", position := pt ((n*21)+5) (t)]
+	--set ok [text := "K"]
+	--drawText p "F" (pt  (n*21) (t)) []
+	--ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
+	--putStr ((show n) ++ " :")
+	--putStrLn . unwords $ rowHelper (rowSquares n gs)
+	printRow (x+1) y w h p gs
 
 
 
@@ -199,7 +249,9 @@ createGUI  (w,h) n gs = do -- the application frame
        --map ( button p [text := "Ok" ])  [1..w]
        reset   <- button p [text := "reset" ] 
        --printRow 1 w p
-       printBoard 1 w h p gs
+       printBoard 1 1 w h p gs
+       --waitForInput p gs
+
        -- create file menu  
        file   <- menuPane      [text := "&File"]
        quit   <- menuQuit file [help := "Quit the demo", on command :=  close f]
