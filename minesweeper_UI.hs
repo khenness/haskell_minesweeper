@@ -145,16 +145,29 @@ main = do
 --used in GUI
 --waitForInput p gs = 
 
+
 --used in GUI
-printBoard x y w h p gs = 
+{-printInternalBoard x y w h p f gs = 
 	 if (y > h) then do
 		return ()
 	 else do
-	     printRow 1 y w h p gs
-             printBoard x (y+1) w h p gs
+	     set p [visible := True]
+	     printInternalRow 1 y w h p f gs
+             printInternalBoard x (y+1) w h p f gs
+-}
+
 
 --used in GUI
-printRow x y w h p gs =
+printBoard x y w h p f gs = 
+	 if (y > h) then do
+		return ()
+	 else do
+	     set p [visible := True]
+	     printRow 1 y w h p f gs
+             printBoard x (y+1) w h p f gs
+
+--used in GUI
+printRow x y w h p f gs =
       if (x > w) then do
         return ()
       else do
@@ -167,17 +180,24 @@ printRow x y w h p gs =
 		(Left Lose) -> do
 		  putStrLn "You lost!"
 		(Right gs')  -> do
-		 start (createGUI  (w,h) 1 gs')),  on clickRight :=(\pt ->  
+		 --p2   <- panel f []
+		 --set p [visible := False]
+ 		 printBoard 1 1 w h p f gs')
+		 --start (createGUI  (w,h) 1 gs'))
+		 ,  on clickRight :=(\pt ->  
 		case (makeMove (Move Flag (x,y)) gs) of
 		(Left Win) -> do
 		  putStrLn "You won!"
 		(Left Lose) -> do
 		  putStrLn "You lost!"
 		(Right gs')  -> do
-		  start (createGUI  (w,h) 1 gs'))
+                 --set p [visible := False]
+		 --p   <- panel f []
+ 		 printBoard 1 1 w h p f gs')
+		  --start (createGUI  (w,h) 1 gs'))
 		]
         -- NOTE: (M.!) is the same as data.Map's lookup function but you know its not a "Maybe X", its definitely an X
-	
+	--use visible := False to get rid of stuff
 	if ((getBoard gs) M.! (x,y)) == Undiscovered then do set ok []
 	{-then 
 	        if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set ok [ picture := "1.png"] 
@@ -230,14 +250,14 @@ printRow x y w h p gs =
 	--ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
 	--putStr ((show n) ++ " :")
 	--putStrLn . unwords $ rowHelper (rowSquares n gs)
-	printRow (x+1) y w h p gs
+	printRow (x+1) y w h p f gs
 
 
 
 
 --createGUI :: (Int, Int) -> Int -> IO ()
 createGUI  (w,h) n gs = do -- the application frame
-       f      <- frame         [text := "Hello world!", clientSize := sz 300 200]                               
+       f      <- frame         [text := "Hello world!", clientSize := sz 500 500]                               
        --nb      <- notebook p []
        --radio button panel
        p   <- panel f []
@@ -247,9 +267,9 @@ createGUI  (w,h) n gs = do -- the application frame
        let rlabels = ["click mode", "flag mode"]
        r1   <- radioBox p Vertical rlabels   [text := "Select mode:"]
        --map ( button p [text := "Ok" ])  [1..w]
-       reset   <- button p [text := "reset" ] 
+       --reset   <- button p [text := "reset" ] 
        --printRow 1 w p
-       printBoard 1 1 w h p gs
+       printBoard 1 1 w h p f gs
        --waitForInput p gs
 
        -- create file menu  

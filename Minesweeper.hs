@@ -1,3 +1,6 @@
+--source: https://gist.github.com/dancannon/4108039
+
+
 module Minesweeper
   ( Pos
   , MoveType(..)
@@ -11,7 +14,6 @@ module Minesweeper
   , getBoard
   , getInternal
   , makeMove
-  , validMove
 ) where
  
 import Control.Monad
@@ -34,6 +36,7 @@ data Square
   | Clicked      -- ^ A clicked square
   | Flagged      -- ^ A square with a flag
   | Adjacent Int -- ^ A discovered square, where the number represents
+
                  --   the number of adjacent mines
   deriving (Eq, Show)
  
@@ -75,7 +78,7 @@ validMove (Move _ (x,y)) (GameState (w,h) squares _) =
     False
   else
     case square of Just Undiscovered -> True
-                   Just Flagged      -> False
+                   Just Flagged      -> True
                    _                 -> False
   where
     square = M.lookup (x,y) squares
