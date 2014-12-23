@@ -173,16 +173,6 @@ flag pos gs = case square of Just Flagged          ->  (GameState (getBounds gs)
   where
     square = M.lookup pos (getBoard gs)
 
-flag2 :: Pos -> GameState -> GameState
-flag2 pos gs = case square of Just Flagged          ->  (GameState (getBounds gs) (M.alter (\x -> Just Undiscovered)     pos (getBoard gs)) (getInternal gs))
-                              Just Undiscovered     ->  (GameState (getBounds gs) (M.alter (\x -> Just Flagged   )       pos (getBoard gs)) (getInternal gs))
-                              Just Clicked          ->  (GameState (getBounds gs) (M.alter (\x -> Just Clicked   )       pos (getBoard gs)) (getInternal gs))
-                              Just (Adjacent an)    ->  (GameState (getBounds gs) (M.alter (\x -> Just (Adjacent an))     pos (getBoard gs)) (getInternal gs))
-                              Nothing               ->  (GameState (getBounds gs) (M.alter (\x -> Nothing     )     pos (getBoard gs)) (getInternal gs))
-  where
-    square = M.lookup pos (getBoard gs)
-
-
 allClickedPositions :: GameState -> (Int, Int) -> [Pos]
 allClickedPositions gs (w,h) = getRow w h
   where
