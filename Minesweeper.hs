@@ -1,5 +1,5 @@
---source: https://gist.github.com/dancannon/4108039
-
+-- source: https://gist.github.com/dancannon/4108039
+-- some functions by Ayokunle
 
 module Minesweeper
   ( Pos
