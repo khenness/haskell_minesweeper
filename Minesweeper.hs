@@ -19,6 +19,8 @@ module Minesweeper
   , adjPos
   , flagAdj
   , adjacentPositions
+  , validSMove
+  , allFreePositions
 ) where
  
 import Control.Monad
@@ -84,6 +86,17 @@ validMove (Move _ (x,y)) (GameState (w,h) squares _) =
   else
     case square of Just Undiscovered -> True
                    Just Flagged      -> True
+                   _                 -> False
+  where
+    square = M.lookup (x,y) squares
+
+validSMove :: Move -> GameState -> Bool
+validSMove (Move _ (x,y)) (GameState (w,h) squares _) =
+  if (not(inBounds (x,y) (w,h))) then
+    False
+  else
+    case square of Just Undiscovered -> True
+                   Just Flagged      -> False
                    _                 -> False
   where
     square = M.lookup (x,y) squares
@@ -179,6 +192,22 @@ allClickedPositions gs (w,h) = getRow w h
     getCellsOfRow 0 y = []
     getCellsOfRow x y = 
       if ( validMove (Move Flag (x,y) ) (gs)  == False) then
+        
+        --if () then
+            (x,y) : getCellsOfRow (x-1) y
+          --else
+
+      else
+        getCellsOfRow (x-1) y
+    getRow w 1 = getCellsOfRow w 1
+    getRow w y = getCellsOfRow w y ++ getRow w (y-1)
+
+allFreePositions :: GameState -> (Int, Int) -> [Pos]
+allFreePositions gs (w,h) = getRow w h
+  where
+    getCellsOfRow 0 y = []
+    getCellsOfRow x y = 
+      if ( validSMove (Move Click (x,y) ) (gs)  == True) then
         
         --if () then
             (x,y) : getCellsOfRow (x-1) y
