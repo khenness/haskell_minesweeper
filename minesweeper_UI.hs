@@ -160,22 +160,22 @@ printInternalRow x y w h p gs =
       if (x > w) then do
         return ()
       else do
-	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
+	--butn   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
 	
-	ok <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, enabled := False]
-        -- NOTE: (M.!) is the same as data.Map's lookup function but you know its not a "Maybe X", its definitely an X
+	butn <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, enabled := False]
+        -- NOTE: (M.!) is the same as data.Map's lobutnup function but you know its not a "Maybe X", its definitely an X
 	--use visible := False to get rid of stuff
 	
-	if ((getInternal gs) M.! (x,y)) == Mine then set ok [ picture := "mine.png"]  
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 1 then set ok [ picture := "1.png"] 
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 2 then set ok [ picture := "2.png"] 
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 3 then set ok [ picture := "3.png"] 
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 4 then set ok [ picture := "4.png"] 
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 5 then set ok [ picture := "5.png"] 
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 6 then set ok [ picture := "6.png"]
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 7 then set ok [ picture := "7.png"] 
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 8 then set ok [ picture := "8.png"] 
-	else if ((getInternal gs) M.! (x,y)) == IAdjacent 9 then set ok [ picture := "9.png"] 
+	if ((getInternal gs) M.! (x,y)) == Mine then set butn [ picture := "mine.png"]  
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 1 then set butn [ picture := "1.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 2 then set butn [ picture := "2.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 3 then set butn [ picture := "3.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 4 then set butn [ picture := "4.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 5 then set butn [ picture := "5.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 6 then set butn [ picture := "6.png"]
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 7 then set butn [ picture := "7.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 8 then set butn [ picture := "8.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 9 then set butn [ picture := "9.png"] 
         else return ()
    
 	printInternalRow (x+1) y w h p gs
@@ -198,20 +198,20 @@ printRow x y w h p gs =
       if (x > w) then do
         return ()
       else do
-	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
+	--butn   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
 	
-	ok <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, on click := (\pt ->  
+	butn <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, on click := (\pt ->  
 		case (makeMove (Move Click (x,y)) gs) of
 		(Left Win) -> do
 		  putStrLn "You won!"
                   printInternalBoard 1 1 w h p gs
-                  ctext <- staticText p [ text := "You won!" ]
+                  ctext <- staticText p [ text := "You won!"]
 		  return ()
 		(Left Lose) -> do
 		  putStrLn "You lost!"
 		  printInternalBoard 1 1 w h p gs
-	          ctext <- staticText p [ text := "You lost!" ]
-	          return ()
+	          ctext <- staticText p [ text := "You lost!"]
+		  return ()
 		(Right gs')  -> do
 		 --p2   <- panel f []
 		 --set p [visible := False]
@@ -231,47 +231,47 @@ printRow x y w h p gs =
  		 printBoard 1 1 w h p gs')
 		  --start (createGUI  (w,h) 1 gs'))
 		]
-        -- NOTE: (M.!) is the same as data.Map's lookup function but you know its not a "Maybe X", its definitely an X
+        -- NOTE: (M.!) is the same as data.Map's lobutnup function but you know its not a "Maybe X", its definitely an X
 	--use visible := False to get rid of stuff
-	if ((getBoard gs) M.! (x,y)) == Undiscovered then do set ok []
+	if ((getBoard gs) M.! (x,y)) == Undiscovered then do set butn []
 	{-then 
-	        if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set ok [ picture := "1.png"] 
-		else if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set ok [ picture := "2.png"] 
-		else if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set ok [ picture := "3.png"] 
-		else if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set ok [ picture := "4.png"] 
-		else if ((getInternal gs) M.! (n,h)) == IAdjacent 5 then set ok [ picture := "5.png"] 
-		else if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set ok [ picture := "6.png"] 
-		else if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set ok [ picture := "7.png"] 
-		else if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set ok [ picture := "8.png"] 
-		else if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] 
-		else if ((getInternal gs) M.! (n,h)) == Mine then set ok [ picture := "mine.png"]   
+	        if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set butn [ picture := "1.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set butn [ picture := "2.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set butn [ picture := "3.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set butn [ picture := "4.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 5 then set butn [ picture := "5.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set butn [ picture := "6.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set butn [ picture := "7.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set butn [ picture := "8.png"] 
+		else if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set butn [ picture := "9.png"] 
+		else if ((getInternal gs) M.! (n,h)) == Mine then set butn [ picture := "mine.png"]   
 	        else return ()
 	else return ()-}
-	else if ((getBoard gs) M.! (x,y)) == Flagged then set ok [ picture := "flag.png" ]
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 0 then set ok [  enabled := False]  
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 1 then set ok [ picture := "1.png", enabled := False] 
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 2 then set ok [ picture := "2.png", enabled := False] 
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 3 then set ok [ picture := "3.png", enabled := False] 
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 4 then set ok [ picture := "4.png", enabled := False] 
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 5 then set ok [ picture := "5.png", enabled := False] 
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 6 then set ok [ picture := "6.png", enabled := False] 
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 7 then set ok [ picture := "7.png", enabled := False] 
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 8 then set ok [ picture := "8.png", enabled := False]
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 9 then set ok [ picture := "9.png", enabled := False]
-	else if ((getBoard gs) M.! (x,y)) == Clicked then set ok [ picture := "0.png" , enabled := False]
+	else if ((getBoard gs) M.! (x,y)) == Flagged then set butn [ picture := "flag.png" ]
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 0 then set butn [  enabled := False]  
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 1 then set butn [ picture := "1.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 2 then set butn [ picture := "2.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 3 then set butn [ picture := "3.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 4 then set butn [ picture := "4.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 5 then set butn [ picture := "5.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 6 then set butn [ picture := "6.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 7 then set butn [ picture := "7.png", enabled := False] 
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 8 then set butn [ picture := "8.png", enabled := False]
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 9 then set butn [ picture := "9.png", enabled := False]
+	else if ((getBoard gs) M.! (x,y)) == Clicked then set butn [ picture := "0.png" , enabled := False]
 	else return () 
 
 {-
-	if ((getInternal gs) M.! (n,h)) == Mine then set ok [ picture := "mine.png"]  else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set ok [ picture := "1.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set ok [ picture := "2.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set ok [ picture := "3.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set ok [ picture := "4.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 5 then set ok [ picture := "5.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set ok [ picture := "6.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set ok [ picture := "7.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set ok [ picture := "8.png"] else return ()
-	if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] else return () 
+	if ((getInternal gs) M.! (n,h)) == Mine then set butn [ picture := "mine.png"]  else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 1 then set butn [ picture := "1.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 2 then set butn [ picture := "2.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 3 then set butn [ picture := "3.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 4 then set butn [ picture := "4.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 5 then set butn [ picture := "5.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 6 then set butn [ picture := "6.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set butn [ picture := "7.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set butn [ picture := "8.png"] else return ()
+	if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set butn [ picture := "9.png"] else return () 
   -}    
 	printRow (x+1) y w h p gs
 
@@ -280,13 +280,13 @@ printRow x y w h p gs =
 
 --createGUI :: (Int, Int) -> Int -> IO ()
 createGUI  (w,h) n gs = do -- the application frame
-       f      <- frame         [text := "Hello world!", clientSize := sz (w*30) (h*30)]                               
-       --nb      <- notebook p []
+       f      <- frame         [text := "Hello world!", clientSize := sz (w*30) (h*33)]                               
+       --nb      <- notebobutn p []
        --radio button panel
        p   <- panel f []
        printBoard 1 1 w h p gs
        --waitForInput p gs
-
+       autoMoveButton   <- button p [text := "Auto move!", position := pt (w*10) ((h*27)), size := Size 90 27, on click := (\pt ->  putStrLn "autoMoveButton pressed !" )]
        -- create file menu  
        file   <- menuPane      [text := "&File"]
        quit   <- menuQuit file [help := "Quit the demo", on command :=  close f]
@@ -316,12 +316,12 @@ hello :: IO ()
 hello
   = do -- the application frame
        f      <- frame         [text := "Hello world!", clientSize := sz 300 200]                               
-       --nb      <- notebook p []
+       --nb      <- notebobutn p []
        --radio button panel
        p   <- panel f []
        let rlabels = ["click mode", "flag mode"]
        r1   <- radioBox p Vertical rlabels   [text := "Select mode:"]
-       ok   <- button p [text := "Ok", on click := (\pt -> hello), on clickRight :=(\pt -> hello) ]
+       butn   <- button p [text := "butn", on click := (\pt -> hello), on clickRight :=(\pt -> hello) ]
 
        -- create file menu  
        file   <- menuPane      [text := "&File"]
@@ -340,6 +340,6 @@ hello
              ]
 
 
-createButton p = do  ok   <- button p [text := "Ok", on click := (\pt -> hello), on clickRight :=(\pt -> hello) ]
+createButton p = do  butn   <- button p [text := "butn", on click := (\pt -> hello), on clickRight :=(\pt -> hello) ]
 
 -}
