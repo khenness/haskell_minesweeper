@@ -147,53 +147,88 @@ main = do
 
 
 --used in GUI
-{-printInternalBoard x y w h p f gs = 
+printInternalBoard x y w h p gs = 
 	 if (y > h) then do
 		return ()
 	 else do
 	     set p [visible := True]
-	     printInternalRow 1 y w h p f gs
-             printInternalBoard x (y+1) w h p f gs
--}
-
+	     printInternalRow 1 y w h p gs
+             printInternalBoard x (y+1) w h p gs
 
 --used in GUI
-printBoard x y w h p f gs = 
-	 if (y > h) then do
-		return ()
-	 else do
-	     set p [visible := True]
-	     printRow 1 y w h p f gs
-             printBoard x (y+1) w h p f gs
-
---used in GUI
-printRow x y w h p f gs =
+printInternalRow x y w h p gs =
       if (x > w) then do
         return ()
       else do
 	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
 	
-	ok <- bitmapButton p [ position := pt (x*24+20) (y*24+20) ,size := Size 24 24, on click := (\pt ->  
+	ok <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, enabled := False]
+        -- NOTE: (M.!) is the same as data.Map's lookup function but you know its not a "Maybe X", its definitely an X
+	--use visible := False to get rid of stuff
+	
+	if ((getInternal gs) M.! (x,y)) == Mine then set ok [ picture := "mine.png"]  
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 1 then set ok [ picture := "1.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 2 then set ok [ picture := "2.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 3 then set ok [ picture := "3.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 4 then set ok [ picture := "4.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 5 then set ok [ picture := "5.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 6 then set ok [ picture := "6.png"]
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 7 then set ok [ picture := "7.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 8 then set ok [ picture := "8.png"] 
+	else if ((getInternal gs) M.! (x,y)) == IAdjacent 9 then set ok [ picture := "9.png"] 
+        else return ()
+   
+	printInternalRow (x+1) y w h p gs
+
+
+
+
+
+--used in GUI
+printBoard x y w h p gs = 
+	 if (y > h) then do
+		return ()
+	 else do
+	     set p [visible := True]
+	     printRow 1 y w h p gs
+             printBoard x (y+1) w h p gs
+
+--used in GUI
+printRow x y w h p gs =
+      if (x > w) then do
+        return ()
+      else do
+	--ok   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
+	
+	ok <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, on click := (\pt ->  
 		case (makeMove (Move Click (x,y)) gs) of
 		(Left Win) -> do
 		  putStrLn "You won!"
+                  printInternalBoard 1 1 w h p gs
+                  ctext <- staticText p [ text := "You won!" ]
+		  return ()
 		(Left Lose) -> do
 		  putStrLn "You lost!"
+		  printInternalBoard 1 1 w h p gs
+	          ctext <- staticText p [ text := "You lost!" ]
+	          return ()
 		(Right gs')  -> do
 		 --p2   <- panel f []
 		 --set p [visible := False]
- 		 printBoard 1 1 w h p f gs')
+ 		 printBoard 1 1 w h p gs')
 		 --start (createGUI  (w,h) 1 gs'))
 		 ,  on clickRight :=(\pt ->  
 		case (makeMove (Move Flag (x,y)) gs) of
 		(Left Win) -> do
 		  putStrLn "You won!"
+                  printInternalBoard 1 1 w h p gs
 		(Left Lose) -> do
 		  putStrLn "You lost!"
+                  printInternalBoard 1 1 w h p gs
 		(Right gs')  -> do
                  --set p [visible := False]
 		 --p   <- panel f []
- 		 printBoard 1 1 w h p f gs')
+ 		 printBoard 1 1 w h p gs')
 		  --start (createGUI  (w,h) 1 gs'))
 		]
         -- NOTE: (M.!) is the same as data.Map's lookup function but you know its not a "Maybe X", its definitely an X
@@ -213,7 +248,7 @@ printRow x y w h p f gs =
 	        else return ()
 	else return ()-}
 	else if ((getBoard gs) M.! (x,y)) == Flagged then set ok [ picture := "flag.png" ]
-	else if ((getBoard gs) M.! (x,y)) == Adjacent 0 then set ok [ picture := "0.png", enabled := False]  
+	else if ((getBoard gs) M.! (x,y)) == Adjacent 0 then set ok [  enabled := False]  
 	else if ((getBoard gs) M.! (x,y)) == Adjacent 1 then set ok [ picture := "1.png", enabled := False] 
 	else if ((getBoard gs) M.! (x,y)) == Adjacent 2 then set ok [ picture := "2.png", enabled := False] 
 	else if ((getBoard gs) M.! (x,y)) == Adjacent 3 then set ok [ picture := "3.png", enabled := False] 
@@ -237,56 +272,34 @@ printRow x y w h p f gs =
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 7 then set ok [ picture := "7.png"] else return ()
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 8 then set ok [ picture := "8.png"] else return ()
 	if ((getInternal gs) M.! (n,h)) == IAdjacent 9 then set ok [ picture := "9.png"] else return () 
-  -}     
-	        
-
-
-	-- == Mine 
-		--then set ok [ picture := "mine.png"] 
-		--else set ok [ picture := "flag.png"]
-	--staticText p [ text := "X", position := pt ((n*21)+5) (t)]
-	--set ok [text := "K"]
-	--drawText p "F" (pt  (n*21) (t)) []
-	--ctext <- staticText p [ text := "X", position := pt (n*21)) (t)]
-	--putStr ((show n) ++ " :")
-	--putStrLn . unwords $ rowHelper (rowSquares n gs)
-	printRow (x+1) y w h p f gs
+  -}    
+	printRow (x+1) y w h p gs
 
 
 
 
 --createGUI :: (Int, Int) -> Int -> IO ()
 createGUI  (w,h) n gs = do -- the application frame
-       f      <- frame         [text := "Hello world!", clientSize := sz 500 500]                               
+       f      <- frame         [text := "Hello world!", clientSize := sz (w*30) (h*30)]                               
        --nb      <- notebook p []
        --radio button panel
        p   <- panel f []
-      {- p <- scrolledWindow f [virtualSize := sz 500 500, scrollRate := sz 10 10
-		                      , fullRepaintOnResize := False]
-	       --p2   <- panel f []-}
-       let rlabels = ["click mode", "flag mode"]
-       r1   <- radioBox p Vertical rlabels   [text := "Select mode:"]
-       --map ( button p [text := "Ok" ])  [1..w]
-       --reset   <- button p [text := "reset" ] 
-       --printRow 1 w p
-       printBoard 1 1 w h p f gs
+       printBoard 1 1 w h p gs
        --waitForInput p gs
 
        -- create file menu  
        file   <- menuPane      [text := "&File"]
        quit   <- menuQuit file [help := "Quit the demo", on command :=  close f]
-
+       return ()
        -- create Help menu
       -- hlp    <- menuHelp      []
        --about  <- menuAbout hlp [help := "About wxHaskell"]
 
        -- create statusbar field
-       status <- statusField   [text := "Welcome to Minesweeper!"]
+       --status <- statusField   [text := "Welcome to Minesweeper!"]
 
        -- set the statusbar and menubar
-       set f [ statusBar := [status]
-             
-             ]
+       --set f [ statusBar := [status]]
  
   
 
