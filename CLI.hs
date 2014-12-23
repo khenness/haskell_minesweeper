@@ -5,6 +5,7 @@ import qualified Data.Set as S
 import Data.Map(Map)
 import Data.Char
 import System.Random
+import System.IO.Unsafe
  
 showBoard :: GameState -> IO ()
 showBoard gs = do  -- Print col names
@@ -97,13 +98,6 @@ prompt gs (w, h)= do
       promptRandom (w,h) gs
     "sm" -> do
       smartMove (w,h) gs
-    "sf" -> do
-      let clicked_pos = allClickedPositions gs (w,h)
-      print $ length clicked_pos
-      print clicked_pos
-      let adj = adjacentPositions $ head clicked_pos
-      print adj
-      smartFlag (w,h) gs clicked_pos
     "p" -> do
       showBoard gs
       prompt gs (w, h)
@@ -112,16 +106,40 @@ prompt gs (w, h)= do
     _ -> do
       prompt gs (w, h)
  
-smartFlag (w, h) gs [] = prompt gs (w, h)
+smartFlag (w, h) gs [] = gs
 smartFlag (w,h) gs (x : xs) = do
-  print x
+  --print x
   let gs' = adjPos [x] gs
-  showBoard gs'
+  --showBoard gs'
   smartFlag (w,h) gs' (xs)
 
+
 smartMove (w,h) gs = do
-
-
+  let clicked_pos = allClickedPositions gs (w,h)
+  --print $ length clicked_pos
+  --print clicked_pos
+  let adj = adjacentPositions $ head clicked_pos
+  --print adj
+  let gs' = smartFlag (w,h) gs clicked_pos
+  let free_pos = allFreePositions gs' (w,h)
+  
+  let x  = unsafePerformIO (getStdRandom (randomR (0, length free_pos-1)))
+  let  ranPos = (free_pos !! x )
+  print ranPos
+  if ( validMove (Move Click ranPos) (gs')  == True) then
+    case (makeMove (Move Click ranPos) gs') of
+      (Left Win) -> do
+        showInternal gs'
+        putStrLn "You won!"
+      (Left Lose) -> do
+        showInternal gs'
+        putStrLn "You lost!"
+      (Right gs'')  -> do
+        showBoard gs''
+        smartMove (w,h) gs''
+  else do
+        print "Retrying smartMove..."
+        smartMove (w,h) gs
 
 
 promptRandom   (w,h)  gs = do
