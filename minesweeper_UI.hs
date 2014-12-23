@@ -11,7 +11,7 @@ import qualified Data.Set as S
 import Data.Map(Map)
 import Data.Char
 import System.Random
- 
+import System.IO.Unsafe
 
 
 
@@ -76,44 +76,7 @@ showInternal gs = do  -- Print col names
         cellHelper (IAdjacent n) = show n
         rowHelper squares = [cellHelper s|(_,s) <- (M.toList squares)]
  
-prompt :: GameState -> IO ()
-prompt gs = do
-  putStrLn "Enter your move (f = flag, c = click, q = quit)"
-  line <- getLine
-  case (dropWhile isSpace $ takeWhile (not . isSpace) line) of
-    "f" -> do
-      putStrLn "Enter the coordinate of the square you wish to flag"
-      line <- getLine
-      let pos = read line :: (Int, Int)
- 
-      case (makeMove (Move Flag pos) gs) of
-        (Left Win) -> do
-          putStrLn "You won!"
-        (Left Lose) -> do
-          putStrLn "You lost!"
-        (Right gs')  -> do
-          showBoard gs'
-          showInternal gs'
-          prompt gs'
-    "c" -> do
-      putStrLn "Enter the coordinate of the square you wish to click"
-      line <- getLine
-      let pos = read line :: (Int, Int)
- 
-      case (makeMove (Move Click pos) gs) of
-        (Left Win) -> do
-          putStrLn "You won!"
-        (Left Lose) -> do
-          putStrLn "You lost!"
-        (Right gs')  -> do
-          showBoard gs'
-          prompt gs'
-    "q" -> do
-      return ()
-    _ -> do
-      prompt gs
- 
- 
+
  
 main :: IO ()
 main = do
@@ -184,7 +147,6 @@ printInternalRow x y w h p gs =
 	printInternalRow (x+1) y w h p gs
 
 
---capturing common pattern
 updateBoard x y w h p gs =  do 
            case (makeMove (Move Click (x,y)) gs) of
 		(Left Win) -> do
@@ -201,6 +163,48 @@ updateBoard x y w h p gs =  do
 		 --p2   <- panel f []
 		 --set p [visible := False]
  		 printBoard 1 1 w h p gs'
+
+smartFlag (w, h) gs [] = gs
+smartFlag (w,h) gs (x : xs) = do
+  --print x
+  let gs' = adjPos [x] gs
+  --showBoard gs'
+  smartFlag (w,h) gs' (xs)
+
+
+smartMove w h p gs  = do
+  let clicked_pos = allClickedPositions gs (w,h)
+  --print $ length clicked_pos
+  --print clicked_pos
+  let adj = adjacentPositions $ head clicked_pos
+  --print adj
+  let gs' = smartFlag (w,h) gs clicked_pos
+  let free_pos = allFreePositions gs' (w,h)
+  
+  let x  = unsafePerformIO (getStdRandom (randomR (0, length free_pos-1)))
+  let  ranPos = (free_pos !! x )
+  print ranPos
+  if ( validMove (Move Click ranPos) (gs')  == True) then
+    case (makeMove (Move Click ranPos) gs') of
+     	 (Left Win) -> do
+	  putStrLn "You won!"
+	  printInternalBoard 1 1 w h p gs
+	  ctext <- staticText p [ text := "You won!"]
+	  return ()
+	 (Left Lose) -> do
+	  putStrLn "You lost!"
+	  printInternalBoard 1 1 w h p gs
+	  ctext <- staticText p [ text := "You lost!"]
+	  return ()
+	 (Right gs')  -> do
+	 --p2   <- panel f []
+	 --set p [visible := False]
+	 printBoard 1 1 w h p gs'
+  else do
+        print "Retrying smartMove..."
+        smartMove w h p gs
+
+
 
 
 randomMove w h p gs = do
@@ -260,7 +264,11 @@ printRow x y w h p gs =
       else do
 	--butn   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
 	randomMoveButton <- button p [text := "Random move!", position := pt (w*5) ((h*27)), size := Size 105 27, on click := (\pt -> randomMove w h p gs )]
-        autoMoveButton   <- button p [text := "AI move!", position := pt (w*16) ((h*27)), size := Size 90 27, on click := (\pt ->  putStrLn "autoMoveButton pressed !" )]
+        autoMoveButton   <- button p [text := "AI move!", position := pt (w*16) ((h*27)), size := Size 90 27, 
+                                     on click := (\pt -> do smartMove w h p gs
+                                                            putStrLn "autoMoveButton pressed!"
+                                                 )
+                                     ]
 	butn <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, on click := (\pt ->  
 		case (makeMove (Move Click (x,y)) gs) of
 		(Left Win) -> do
@@ -285,6 +293,7 @@ printRow x y w h p gs =
                   printInternalBoard 1 1 w h p gs
 		(Left Lose) -> do
 		  putStrLn "You lost!"
+	          ctext <- staticText p [ text := "You lost!"]
                   printInternalBoard 1 1 w h p gs
 		(Right gs')  -> do
                  --set p [visible := False]
