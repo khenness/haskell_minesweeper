@@ -59,7 +59,7 @@ showInternal gs = do  -- Print col names
  
 prompt :: GameState -> (Int, Int) -> IO ()
 prompt gs (w, h)= do
-  putStrLn "Enter your move (f = flag, c = click, rm = random move, sm = smart move,   q = quit)"
+  putStrLn "Enter your move (f = flag, c = click, rm = random move, sm = smart move, sf =smart flag, p = print   q = quit)"
   line <- getLine
   case (dropWhile isSpace $ takeWhile (not . isSpace) line) of -- checks for space and retu
     "f" -> do
@@ -69,12 +69,14 @@ prompt gs (w, h)= do
  
       case (makeMove (Move Flag pos) gs) of
         (Left Win) -> do
+          showInternal gs
           putStrLn "You won!"
         (Left Lose) -> do
+          showInternal gs
           putStrLn "You lost!"
         (Right gs')  -> do
           showBoard gs'
-          showInternal gs'
+          --showInternal gs'
           prompt gs' (w, h)
     "c" -> do
       putStrLn "Enter the coordinate of the square you wish to click"
@@ -93,12 +95,34 @@ prompt gs (w, h)= do
           prompt gs' (w, h)
     "rm" -> do
       promptRandom (w,h) gs
-      --return ()
+    "sm" -> do
+      smartMove (w,h) gs
+    "sf" -> do
+      let clicked_pos = allClickedPositions gs (w,h)
+      print $ length clicked_pos
+      print clicked_pos
+      let adj = adjacentPositions $ head clicked_pos
+      print adj
+      smartFlag (w,h) gs clicked_pos
+    "p" -> do
+      showBoard gs
+      prompt gs (w, h)
     "q" -> do
       return ()
     _ -> do
       prompt gs (w, h)
  
+smartFlag (w, h) gs [] = prompt gs (w, h)
+smartFlag (w,h) gs (x : xs) = do
+  print x
+  let gs' = adjPos [x] gs
+  showBoard gs'
+  smartFlag (w,h) gs' (xs)
+
+smartMove (w,h) gs = do
+
+
+
 
 promptRandom   (w,h)  gs = do
       x     <- getStdRandom(randomR (1, w))
@@ -112,12 +136,16 @@ promptRandom   (w,h)  gs = do
 
         case (makeMove (Move Click position) gs) of
           (Left Win) -> do
+            showInternal gs
             putStrLn "You won!"
           (Left Lose) -> do
+            showInternal gs
             putStrLn "You lost!"
           (Right gs')  -> do
             showBoard gs'
+            --smartFlag (w,h) gs'
             prompt gs' (w, h)
+            --promptRandom (w,h) gs'
       else do
         print "Retrying..."
         promptRandom (w,h) gs

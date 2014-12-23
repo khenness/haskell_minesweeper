@@ -15,6 +15,10 @@ module Minesweeper
   , getInternal
   , makeMove
   , validMove
+  , allClickedPositions
+  , adjPos
+  , flagAdj
+  , adjacentPositions
 ) where
  
 import Control.Monad
@@ -67,8 +71,8 @@ getBoard (GameState _ board _) = board
 getInternal :: GameState -> Map Pos InternalSquare
 getInternal (GameState _ _ internal) = internal
  
-adjacentPositions :: Pos -> [Pos]
-adjacentPositions (x,y) = [(x-1,y-1),(x-1,y),(x-1,y+1),(x,y+1),(x+1,y+1),(x+1,y),(x+1,y-1),(x,y-1)]
+--adjacentPositions :: Pos -> [Pos]
+--adjacentPositions (x,y) = [(x-1,y-1),(x-1,y),(x-1,y+1),(x,y+1),(x+1,y+1),(x+1,y),(x+1,y-1),(x,y-1)]
  
 movePos :: Move -> Pos
 movePos (Move _ pos) = pos
@@ -161,7 +165,54 @@ click pos gs = case isquare of Just Mine           -> (GameState (getBounds gs) 
     (_, gs') = fill pos (S.empty) gs
  
 flag :: Pos -> GameState -> GameState
-flag pos gs = case square of Just Flagged      -> (GameState (getBounds gs) (M.alter (\x -> Just Undiscovered) pos (getBoard gs)) (getInternal gs))
-                             Just Undiscovered ->  (GameState (getBounds gs) (M.alter (\x -> Just Flagged) pos (getBoard gs)) (getInternal gs))
+flag pos gs = case square of Just Flagged          ->  (GameState (getBounds gs) (M.alter (\x -> Just Undiscovered) pos (getBoard gs)) (getInternal gs))
+                             Just Undiscovered     ->  (GameState (getBounds gs) (M.alter (\x -> Just Flagged   )   pos (getBoard gs)) (getInternal gs))
+                             Just Clicked          ->  (GameState (getBounds gs) (M.alter (\x -> Just Clicked   )   pos (getBoard gs)) (getInternal gs))
+                             Just (Adjacent an)    ->  (GameState (getBounds gs) (M.alter (\x -> Just (Adjacent an))pos (getBoard gs)) (getInternal gs))
+                             Nothing               ->  (GameState (getBounds gs) (M.alter (\x -> Nothing     )      pos (getBoard gs)) (getInternal gs))
   where
     square = M.lookup pos (getBoard gs)
+
+flag2 :: Pos -> GameState -> GameState
+flag2 pos gs = case square of Just Flagged          ->  (GameState (getBounds gs) (M.alter (\x -> Just Undiscovered)     pos (getBoard gs)) (getInternal gs))
+                              Just Undiscovered     ->  (GameState (getBounds gs) (M.alter (\x -> Just Flagged   )       pos (getBoard gs)) (getInternal gs))
+                              Just Clicked          ->  (GameState (getBounds gs) (M.alter (\x -> Just Clicked   )       pos (getBoard gs)) (getInternal gs))
+                              Just (Adjacent an)    ->  (GameState (getBounds gs) (M.alter (\x -> Just (Adjacent an))     pos (getBoard gs)) (getInternal gs))
+                              Nothing               ->  (GameState (getBounds gs) (M.alter (\x -> Nothing     )     pos (getBoard gs)) (getInternal gs))
+  where
+    square = M.lookup pos (getBoard gs)
+
+
+allClickedPositions :: GameState -> (Int, Int) -> [Pos]
+allClickedPositions gs (w,h) = getRow w h
+  where
+    getCellsOfRow 0 y = []
+    getCellsOfRow x y = 
+      if ( validMove (Move Flag (x,y) ) (gs)  == False) then
+        
+        --if () then
+            (x,y) : getCellsOfRow (x-1) y
+          --else
+
+      else
+        getCellsOfRow (x-1) y
+    getRow w 1 = getCellsOfRow w 1
+    getRow w y = getCellsOfRow w y ++ getRow w (y-1)
+
+
+adjacentPositions :: Pos -> [Pos]
+adjacentPositions (x,y) = [(x-1,y-1),(x-1,y),(x-1,y+1),(x,y+1),(x+1,y+1),(x+1,y),(x+1,y-1),(x,y-1)]
+
+adjPos :: [Pos] -> GameState ->  GameState
+adjPos [] gs = gs
+adjPos (x:xs) gs = do
+  let adj = adjacentPositions x
+  let gs' = flagAdj adj gs
+  adjPos xs gs'
+  
+  
+flagAdj :: [Pos] -> GameState -> GameState
+flagAdj [] gs = gs
+flagAdj (pos:xs) gs = do
+    let gs' = flag pos gs
+    flagAdj xs gs'
