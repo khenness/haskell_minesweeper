@@ -14,6 +14,7 @@ module Minesweeper
   , getBoard
   , getInternal
   , makeMove
+  , validMove
 ) where
  
 import Control.Monad

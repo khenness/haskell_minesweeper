@@ -10,6 +10,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import Data.Map(Map)
 import Data.Char
+import System.Random
  
 
 
@@ -163,6 +164,8 @@ printInternalRow x y w h p gs =
 	--butn   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
 	
 	butn <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, enabled := False]
+        randomMoveButton <- button p [text := "Random move!", position := pt (w*5) ((h*27)), size := Size 105 27, enabled := False]
+        autoMoveButton   <- button p [text := "AI move!", position := pt (w*16) ((h*27)), size := Size 90 27, enabled := False]
         -- NOTE: (M.!) is the same as data.Map's lobutnup function but you know its not a "Maybe X", its definitely an X
 	--use visible := False to get rid of stuff
 	
@@ -181,7 +184,64 @@ printInternalRow x y w h p gs =
 	printInternalRow (x+1) y w h p gs
 
 
+--capturing common pattern
+updateBoard x y w h p gs =  do 
+           case (makeMove (Move Click (x,y)) gs) of
+		(Left Win) -> do
+		  putStrLn "You won!"
+                  printInternalBoard 1 1 w h p gs
+                  ctext <- staticText p [ text := "You won!"]
+		  return ()
+		(Left Lose) -> do
+		  putStrLn "You lost!"
+		  printInternalBoard 1 1 w h p gs
+	          ctext <- staticText p [ text := "You lost!"]
+		  return ()
+		(Right gs')  -> do
+		 --p2   <- panel f []
+		 --set p [visible := False]
+ 		 printBoard 1 1 w h p gs'
 
+
+randomMove w h p gs = do
+      x_rand     <- getStdRandom(randomR (1, w))
+      y_rand     <- getStdRandom(randomR (1, h))
+      let position   = (x_rand, y_rand)
+      let z = 1
+      let squares = getBoard gs
+      let squares_int = getInternal gs
+      print position
+      if ( validMove (Move Click position) (gs)  == True) then
+          updateBoard x_rand y_rand w h p gs
+          {-case (makeMove (Move Click (x_rand,y_rand)) gs) of
+		(Left Win) -> do
+		  putStrLn "You won!"
+                  printInternalBoard 1 1 w h p gs
+                  ctext <- staticText p [ text := "You won!"]
+		  return ()
+		(Left Lose) -> do
+		  putStrLn "You lost!"
+		  printInternalBoard 1 1 w h p gs
+	          ctext <- staticText p [ text := "You lost!"]
+		  return ()
+		(Right gs')  -> do
+		 --p2   <- panel f []
+		 --set p [visible := False]
+ 		 printBoard 1 1 w h p gs'
+-}
+
+{-
+        case (makeMove (Move Click position) gs) of
+          (Left Win) -> do
+            putStrLn "You won!"
+          (Left Lose) -> do
+            putStrLn "You lost!"
+          (Right gs')  -> do
+            showBoard gs'
+            prompt gs' (w, h)-}
+      else do
+        print "Retrying..."
+        randomMove w h p gs
 
 
 --used in GUI
@@ -199,7 +259,8 @@ printRow x y w h p gs =
         return ()
       else do
 	--butn   <- button p [ position := pt (n*21) (t), size := Size 20 20 ]
-	
+	randomMoveButton <- button p [text := "Random move!", position := pt (w*5) ((h*27)), size := Size 105 27, on click := (\pt -> randomMove w h p gs )]
+        autoMoveButton   <- button p [text := "AI move!", position := pt (w*16) ((h*27)), size := Size 90 27, on click := (\pt ->  putStrLn "autoMoveButton pressed !" )]
 	butn <- bitmapButton p [ position := pt (x*24) (y*24) ,size := Size 24 24, on click := (\pt ->  
 		case (makeMove (Move Click (x,y)) gs) of
 		(Left Win) -> do
@@ -286,7 +347,7 @@ createGUI  (w,h) n gs = do -- the application frame
        p   <- panel f []
        printBoard 1 1 w h p gs
        --waitForInput p gs
-       autoMoveButton   <- button p [text := "Auto move!", position := pt (w*10) ((h*27)), size := Size 90 27, on click := (\pt ->  putStrLn "autoMoveButton pressed !" )]
+      
        -- create file menu  
        file   <- menuPane      [text := "&File"]
        quit   <- menuQuit file [help := "Quit the demo", on command :=  close f]
